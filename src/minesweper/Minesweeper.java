@@ -19,7 +19,7 @@ public class Minesweeper {
     public static void main(String[] args) {
         Grafics grafics = new Grafics();
         grafics.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        grafics.setSize(400, 400);
+        grafics.setSize(300, 300);
         grafics.setResizable(false);
         grafics.setVisible(true);
     }
