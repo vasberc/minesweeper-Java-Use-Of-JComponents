@@ -26,11 +26,13 @@ public class SystemGrafics extends JFrame {
         super(title);
         setSystemGrafics();
     }
+
+   
     
     private void setSystemGrafics() {
         
         
-        gameGrafics = new GameGrafics();
+        gameGrafics = new GameGrafics(this);
         gameBar = new GameBar(this);
         setLayout(flowLayout);       
         add(gameBar);
@@ -48,6 +50,12 @@ public class SystemGrafics extends JFrame {
     public GameGrafics getGameGrafics() {
         return gameGrafics;
     }
+
+     public GameBar getGameBar() {
+        return gameBar;
+    }
+
+    
 
     
     

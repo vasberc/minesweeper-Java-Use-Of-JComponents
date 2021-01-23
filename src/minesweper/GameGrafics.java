@@ -48,7 +48,8 @@ enum Neighbors {
 public final class GameGrafics extends JPanel implements MouseListener{    
    
     private final List<Box> boxes = new ArrayList();//All game objects will live here    
-    private final Counter label = new Counter();     
+    private final Counter label = new Counter();
+    private final SystemGrafics system;
     private final ImageIcon closedBox = new ImageIcon("img/closedBox.png");
     private final ImageIcon flagIcon = new ImageIcon("img/flag.png");
     private final ImageIcon mineIcon = new ImageIcon("img/mine.png");
@@ -56,7 +57,8 @@ public final class GameGrafics extends JPanel implements MouseListener{
     private int mines = 10;
     private int flags = mines; 
     
-    public GameGrafics() {
+    public GameGrafics(SystemGrafics system) {
+        this.system = system;
         GridLayout gridLayout = new GridLayout(9,9);
         setLayout(gridLayout);
         generateGameField();
@@ -239,6 +241,7 @@ public final class GameGrafics extends JPanel implements MouseListener{
         }
         System.out.println("Game Over");
         this.label.timer.stop();
+        this.system.getGameBar().getButton().setIcon(new ImageIcon("img/gameover.png"));
         
     }
 

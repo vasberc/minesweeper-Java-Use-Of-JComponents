@@ -12,6 +12,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -36,9 +37,12 @@ public class GameBar extends JPanel implements MouseListener{
     }
     
      private void setBar(GameGrafics gameGrafics) {
+        ImageIcon BarIcon = new ImageIcon("img/Minesweeperboard.png");
         layout.setHgap(30);
         this.setLayout(layout);       
         button = new JButton();
+        button.setIcon(BarIcon);
+        button.setToolTipText("Restart Game");
         counter = gameGrafics.getLabel();
         button.setPreferredSize(new Dimension(30, 30));
         button.addMouseListener(this);
@@ -48,6 +52,8 @@ public class GameBar extends JPanel implements MouseListener{
         label.setPreferredSize(new Dimension(50, 30));
         add(label, BorderLayout.LINE_END);
     }
+
+    
     
 
     @Override
@@ -69,6 +75,10 @@ public class GameBar extends JPanel implements MouseListener{
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    public JButton getButton() {
+        return button;
     }
 
    
