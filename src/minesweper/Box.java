@@ -3,7 +3,6 @@
  */
 package minesweper;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 /**
@@ -17,7 +16,7 @@ public class Box extends JButton{
     private boolean Mined;//controls a mine is behind
     private boolean Flaged;//controls if the user put flag on top
     private Neighbors neighborsMined;//number of naighbors with mine
-    private int index;//index of the object in the ArrayList
+    private final int index;//index of the object in the ArrayList
 
     //Constructor
     public Box(int index) {

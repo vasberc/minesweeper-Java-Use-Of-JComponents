@@ -5,19 +5,16 @@
  */
 package minesweper;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JTextField;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 /**
@@ -27,15 +24,15 @@ import javax.swing.SwingUtilities;
 
 //Will use it to set the img acording the neighbors with mine
 enum Neighbors {
-  ZERO(new ImageIcon("img/0.jpg"), 0),  //no mined neighbors
-  ONE(new ImageIcon("img/1.jpg"), 1),   //1 mined neighbor
-  TWO(new ImageIcon("img/2.jpg"), 2),   //2 mined neighbors
-  THREE(new ImageIcon("img/3.jpg"), 3), //3 mined neighbors
-  FOUR(new ImageIcon("img/4.jpg"), 4),  //4 mined neighbors
-  FIVE(new ImageIcon("img/5.jpg"), 5),  //5 mined neighbors
-  SIX(new ImageIcon("img/6.jpg"), 6),   //6 mined neighbors
-  SEVEN(new ImageIcon("img/7.jpg"), 7), //7 mined neighbors
-  EIGHT(new ImageIcon("img/8.jpg"), 8); //8 mined neighbors
+  ZERO(new ImageIcon("img/zero.png"), 0),  //no mined neighbors
+  ONE(new ImageIcon("img/one.png"), 1),   //1 mined neighbor
+  TWO(new ImageIcon("img/two.png"), 2),   //2 mined neighbors
+  THREE(new ImageIcon("img/three.png"), 3), //3 mined neighbors
+  FOUR(new ImageIcon("img/four.png"), 4),  //4 mined neighbors
+  FIVE(new ImageIcon("img/five.png"), 5),  //5 mined neighbors
+  SIX(new ImageIcon("img/six.png"), 6),   //6 mined neighbors
+  SEVEN(new ImageIcon("img/seven.png"), 7), //7 mined neighbors
+  EIGHT(new ImageIcon("img/eight.png"), 8); //8 mined neighbors
   
   public final ImageIcon icon;
   public final int value;
@@ -48,35 +45,48 @@ enum Neighbors {
 }
 
 
-public class GameGrafics extends JFrame implements MouseListener{
+public final class GameGrafics extends JPanel implements MouseListener{    
    
-    List<Box> boxes = new ArrayList();//All game objects will live here    
-   
-    ImageIcon flagIcon = new ImageIcon("img/flag.jpg");
-    ImageIcon mineIcon = new ImageIcon("img/mine.png");
-    ImageIcon remainingMineIcon = new ImageIcon("img/remainingMines.png");
-    int mines = 10;
-    int flags = mines;
+    private final List<Box> boxes = new ArrayList();//All game objects will live here    
+    private final Counter label = new Counter();     
+    private final ImageIcon closedBox = new ImageIcon("img/closedBox.png");
+    private final ImageIcon flagIcon = new ImageIcon("img/flag.png");
+    private final ImageIcon mineIcon = new ImageIcon("img/mine.png");
+    private final ImageIcon remainingMineIcon = new ImageIcon("img/remainingMines.png");
+    private int mines = 10;
+    private int flags = mines; 
     
-    public GameGrafics()
-    {
-        super("Mine sewper test");
+    public GameGrafics() {
         GridLayout gridLayout = new GridLayout(9,9);
         setLayout(gridLayout);
+        generateGameField();
+        generateMines();
+        setNeighbors();
+        
+    
+    }
+    
+    
+    public void generateGameField() {
+        
+        
         
         boxes.add(null);//we work with index form 1 to 81, every live is pack of 9
         
         //creating all game boxes and put them to the grid
         for(int i=1; i<=81; i++){
             Box box = new Box(i);//create the box with index = i
-            boxes.add(box);//put the box to the list            
+            box.setPreferredSize(new Dimension(25, 25));
+            box.setIcon(closedBox);
+            boxes.add(box);//put the box to the list
             box.addMouseListener(this);//listen to users mouse
             add(box);//put the box to the grid           
         }
-        generateMines();//genarated random mines
-        setNeighbors();//set for each object Neighbors attribute acording the genarated mines
         
-        
+    }
+    
+    public Counter getLabel() {
+        return label;
     }
     
     //genarating mines
@@ -153,6 +163,22 @@ public class GameGrafics extends JFrame implements MouseListener{
         return neibors;      
     }
     
+    public void leftClickProc(Box box){
+        if (!box.isFlaged()){        //if box is not flaged
+                   
+                    if(box.isMined()){       //if is mined open it and set the icons
+                        box.setEnabled(false);
+                        box.setIcon(mineIcon);
+                        box.setDisabledIcon(mineIcon);
+                        gameOver();
+                    }
+                    else {
+                        openBox(box);        //else call openBox method to open it
+                    }               
+                    checkIfWins();
+                }
+    }
+    
     /*Open boxes if are not mined
     * If a box does not have mined neighbors,
     * it opens all not mined neighbors by retro call of itself
@@ -165,12 +191,11 @@ public class GameGrafics extends JFrame implements MouseListener{
             box.setDisabledIcon(Neighbors.ZERO.icon);
             //put all my neighbors in a set
             SortedSet<Integer> neighbors = findneighbors(box.getIndex());
-            //for all of them
-            for (Integer i : neighbors) {
-                if (boxes.get(i).isEnabled()) {//if box is closed
-                    openBox(boxes.get(i));//open it
-                }
-            }
+             //for all of them
+             neighbors.stream().filter((i) -> (boxes.get(i).isEnabled())).forEachOrdered((i) -> {
+                 //if box is closed
+                 openBox(boxes.get(i));//open it
+             });
         }
         else if(!box.isMined()){//if box has mined neighbors set the icons          
             box.setIcon(box.getNeighbors().icon);
@@ -191,6 +216,10 @@ public class GameGrafics extends JFrame implements MouseListener{
         }
         if(81-opend == 10){//total boxes = 81 mines = 10 opend has to be 71
                 System.out.println("Congratulations you won");
+                this.label.timer.stop();
+                for(Component component : this.getComponents()) {
+                    component.setEnabled(false);
+}
                 
             }
     }
@@ -202,13 +231,14 @@ public class GameGrafics extends JFrame implements MouseListener{
         while (it.hasNext()) {
             box = it.next();
             //For the rest mined boxes change the icons
-            if(box.isMined() && box.isEnabled()){
+            if(box.isMined() && box.isEnabled() && !box.isFlaged()){
                 box.setIcon(remainingMineIcon);
                 box.setDisabledIcon(remainingMineIcon);
             }
             box.setEnabled(false);//make all boxes disable
         }
         System.out.println("Game Over");
+        this.label.timer.stop();
         
     }
 
@@ -223,12 +253,14 @@ public class GameGrafics extends JFrame implements MouseListener{
                 
                 if(box.isFlaged()){      //and is flaged
                     box.setFlaged(false);//put out the flag
-                    box.setIcon(null);   //put out the icon
-                    flags++;                //refresh flags plurality
+                    box.setIcon(closedBox);  //put out the icon
+                    box.setDisabledIcon(null);
+                    flags++;            //refresh flags plurality
                 }
                 else if (flags !=0){        //else if there are available flags
                     box.setFlaged(true); //put a flag, set the icon
                     box.setIcon(flagIcon);
+                    box.setDisabledIcon(flagIcon);
                     flags--;                //refresh flags plurality
                 }
             }
@@ -237,19 +269,26 @@ public class GameGrafics extends JFrame implements MouseListener{
         else if (SwingUtilities.isLeftMouseButton(e)){
             
             if(box.isEnabled()){
-                if (!box.isFlaged()){        //if box is not flaged
-                   
-                    if(box.isMined()){       //if is mined open it and set the icons
-                        box.setEnabled(false);
-                        box.setIcon(mineIcon);
-                        box.setDisabledIcon(mineIcon);
-                        gameOver();
-                    }
-                    else {
-                        openBox(box);        //else call openBox method to open it
-                    }               
-                    checkIfWins();
+                leftClickProc(box);
+            }
+            else {
+                SortedSet<Integer> neighbors = findneighbors(index);
+                boolean flagsSeted = false;
+                int neighborFlags = 0;
+                for (Iterator<Integer> it = neighbors.iterator(); it.hasNext();) {
+                    Integer i = it.next();
+                    if(boxes.get(i).isFlaged())
+                        neighborFlags++;
+                    else boxes.get(i).doClick();
                 }
+                           
+                if(box.getNeighbors().value == neighborFlags)
+                    neighbors.stream().filter((i) -> {
+                    return !boxes.get(i).isFlaged() && boxes.get(i).isEnabled();
+                }).forEachOrdered((i) -> {
+                        leftClickProc(boxes.get(i));
+                });
+                
             }
         }      
         
