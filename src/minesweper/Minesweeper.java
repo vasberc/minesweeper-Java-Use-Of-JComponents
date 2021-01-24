@@ -5,18 +5,7 @@
  */
 package minesweper;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.Timer;
 
 /**
  *
@@ -33,7 +22,7 @@ public class Minesweeper {
         
         
               
-        SystemGrafics system = new SystemGrafics("MineSweeper");
+        GameEngine system = new GameEngine("MineSweeper");
         
         system.setSize(250, 325);
         system.setLocationRelativeTo(null);

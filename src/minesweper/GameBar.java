@@ -6,59 +6,63 @@
 package minesweper;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
  *
  * @author Βασίλης
+ * 
+ * This class provide us the game bar
+ * Game bar has a layout, a system, a timer and a reset button
  */
 public class GameBar extends JPanel implements MouseListener{
-    private JButton button ;
+    private JButton resetGame ;
+    private JButton highScores;
     private final BorderLayout layout = new BorderLayout();       
-    private Counter counter;
-    
-    private final SystemGrafics system;
-    
-   
+    private  final Counter counter = new Counter();   
+    private final GameEngine engine;  
 
-    public GameBar(SystemGrafics system) {
-        this.system = system;
-        setBar(system.getGameGrafics());
+    public GameBar(GameEngine engine) {
+        this.engine = engine;
+        setBar();
         
     }
     
-     private void setBar(GameGrafics gameGrafics) {
-        ImageIcon BarIcon = new ImageIcon("img/Minesweeperboard.png");
-        layout.setHgap(30);
+    //init the GameBar
+    private void setBar() {
+        ImageIcon barIcon = new ImageIcon("img/Minesweeperboard.png");
+        ImageIcon  statsIcon= new ImageIcon("img/stats.png");
+        layout.setHgap(30); //Space between the components
         this.setLayout(layout);       
-        button = new JButton();
-        button.setIcon(BarIcon);
-        button.setToolTipText("Restart Game");
-        counter = gameGrafics.getLabel();
-        button.setPreferredSize(new Dimension(30, 30));
-        button.addMouseListener(this);
+        resetGame = new JButton();
+        resetGame.setIcon(barIcon);
+        resetGame.setToolTipText("New Game");        
+        resetGame.setPreferredSize(new Dimension(30, 30));
+        resetGame.addMouseListener(this);
         add(counter, BorderLayout.LINE_START);
-        add(button, BorderLayout.CENTER);
-        JLabel label = new JLabel();
-        label.setPreferredSize(new Dimension(50, 30));
-        add(label, BorderLayout.LINE_END);
-    }
-
-    
+        add(resetGame, BorderLayout.CENTER);
+        highScores = new JButton();
+        highScores.setIcon(statsIcon);
+        highScores.setToolTipText("Show High Scores");   
+        highScores.setPreferredSize(new Dimension(50, 30));
+        highScores.addMouseListener(this);
+        add(highScores, BorderLayout.LINE_END);
+    }    
     
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        system.resetGame();
+        if(e.getSource()==resetGame)
+            engine.resetGame();//this is triggered when the reset button is clicked
+        else if (e.getSource()==highScores)
+            engine.showStats();
     }
 
     @Override
@@ -78,7 +82,15 @@ public class GameBar extends JPanel implements MouseListener{
     }
 
     public JButton getButton() {
-        return button;
+        return resetGame;
+    }
+    
+    public Counter getCounter() {
+        return counter;
+    }
+    
+    public JButton getHighScores() {
+        return highScores;
     }
 
    

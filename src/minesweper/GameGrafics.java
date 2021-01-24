@@ -6,14 +6,12 @@
 package minesweper;
 
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.*;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -48,8 +46,8 @@ enum Neighbors {
 public final class GameGrafics extends JPanel implements MouseListener{    
    
     private final List<Box> boxes = new ArrayList();//All game objects will live here    
-    private final Counter label = new Counter();
-    private final SystemGrafics system;
+    
+    private final GameEngine engine;
     private final ImageIcon closedBox = new ImageIcon("img/closedBox.png");
     private final ImageIcon flagIcon = new ImageIcon("img/flag.png");
     private final ImageIcon mineIcon = new ImageIcon("img/mine.png");
@@ -57,8 +55,8 @@ public final class GameGrafics extends JPanel implements MouseListener{
     private int mines = 10;
     private int flags = mines; 
     
-    public GameGrafics(SystemGrafics system) {
-        this.system = system;
+    public GameGrafics(GameEngine engine) {
+        this.engine = engine;
         GridLayout gridLayout = new GridLayout(9,9);
         setLayout(gridLayout);
         generateGameField();
@@ -87,9 +85,7 @@ public final class GameGrafics extends JPanel implements MouseListener{
         
     }
     
-    public Counter getLabel() {
-        return label;
-    }
+    
     
     //genarating mines
     public void generateMines(){
@@ -116,17 +112,18 @@ public final class GameGrafics extends JPanel implements MouseListener{
         Box box = it.next();//put out null element (index 0)
         while (it.hasNext()) {
             box = it.next();
+            box.setNeighbors(findneighbors(box.getIndex()));
             //if box is not mined
             if(!box.isMined()){
                 int num = 0;//to count mined neighbors
-                //for all its neigtbors, findneibors(int index) method returns a Set with all neighbors indexes
-                for(Integer i : findneighbors(box.getIndex()))                    
-                    if(boxes.get(i).isMined())//if current neighbor is mined
+                //for all its neigtbors, findneibors(int index) method returns a Set with all neighbors
+                for(Box b : box.getNeighbors())                    
+                    if(b.isMined())//if current neighbor is mined
                         num+=1;//add his index to neiborsMined                
                 //for all Neighbors enums find the one that is equal to num and put it to box attribute
                 for(Neighbors n : Neighbors.values()){                    
                     if(n.value == num)
-                        box.setNeighbors(n);
+                        box.setNeighborsMined(n);
                 }
                 
             }
@@ -134,35 +131,35 @@ public final class GameGrafics extends JPanel implements MouseListener{
     }
     
     //finding all my neighbors
-    private SortedSet<Integer> findneighbors(int index) {
-        SortedSet<Integer> neibors = new TreeSet();//to put all neighbors indexes
+    private SortedSet<Box> findneighbors(int index) {
+        SortedSet<Box> neighbors = new TreeSet();//to put all neighbors
         
         //-x axis
         if(index%9 != 1)//if there is box left to me
-           neibors.add(index-1);
+           neighbors.add(boxes.get(index-1));
         //+x axis
         if(index%9 !=0 )//if there is box right to me
-            neibors.add(index+1);
+            neighbors.add(boxes.get(index+1));
         //-y axis
         if(index>9 )    //if the is box above to me
-            neibors.add(index-9); 
+            neighbors.add(boxes.get(index-9)); 
         //+y axis
         if(index<73 )   //if there is box below to me
-            neibors.add(index+9);
+            neighbors.add(boxes.get(index+9));
         //-x+y axis
         if(index-10>0 && index%9 != 1 ) //if there is box left and above me
-            neibors.add(index-10);
+            neighbors.add(boxes.get(index-10));
         //+x-y axis
         if(index+10<82 && index%9 !=0 ) //if there is box right and below me
-            neibors.add(index+10);
+            neighbors.add(boxes.get(index+10));
         //-x-y axis
         if(index+8<82 && index%9 != 1 ) //if there is box left and below me
-            neibors.add(index+8);
+            neighbors.add(boxes.get(index+8));
         //+x+y axis
         if(index-8>0 && index%9 !=0 )   //if there is box right and above me
-            neibors.add(index-8);
+            neighbors.add(boxes.get(index-8));
         
-        return neibors;      
+        return neighbors;      
     }
     
     public void leftClickProc(Box box){
@@ -188,20 +185,18 @@ public final class GameGrafics extends JPanel implements MouseListener{
     public void openBox(Box box){
          box.setEnabled(false);//open it   
         //if box does not have mined neighbors
-        if(box.getNeighbors().value == 0){                    
+        if(box.getNeighborsMined().value == 0){                    
             box.setIcon(Neighbors.ZERO.icon);//set the icons
-            box.setDisabledIcon(Neighbors.ZERO.icon);
-            //put all my neighbors in a set
-            SortedSet<Integer> neighbors = findneighbors(box.getIndex());
+            box.setDisabledIcon(Neighbors.ZERO.icon);            
              //for all of them
-             neighbors.stream().filter((i) -> (boxes.get(i).isEnabled())).forEachOrdered((i) -> {
+             box.getNeighbors().stream().filter((b) -> (b.isEnabled())).forEachOrdered((b) -> {
                  //if box is closed
-                 openBox(boxes.get(i));//open it
+                 openBox(b);//open it
              });
         }
         else if(!box.isMined()){//if box has mined neighbors set the icons          
-            box.setIcon(box.getNeighbors().icon);
-            box.setDisabledIcon(box.getNeighbors().icon);  
+            box.setIcon(box.getNeighborsMined().icon);
+            box.setDisabledIcon(box.getNeighborsMined().icon);  
         }
     }
     
@@ -218,10 +213,12 @@ public final class GameGrafics extends JPanel implements MouseListener{
         }
         if(81-opend == 10){//total boxes = 81 mines = 10 opend has to be 71
                 System.out.println("Congratulations you won");
-                this.label.timer.stop();
+                //Stops the timer when the game finish
+                this.engine.getGameBar().getCounter().timer.stop();                
                 for(Component component : this.getComponents()) {
                     component.setEnabled(false);
-}
+                    }
+                this.engine.getStats().checkHighScores( this.engine.getGameBar().getCounter().getCount());
                 
             }
     }
@@ -240,8 +237,10 @@ public final class GameGrafics extends JPanel implements MouseListener{
             box.setEnabled(false);//make all boxes disable
         }
         System.out.println("Game Over");
-        this.label.timer.stop();
-        this.system.getGameBar().getButton().setIcon(new ImageIcon("img/gameover.png"));
+        //Stops the timer when the game finish
+        this.engine.getGameBar().getCounter().timer.stop();
+        //Put gameover icon to the restart button at the gameBar
+        this.engine.getGameBar().getButton().setIcon(new ImageIcon("img/gameover.png"));       
         
     }
 
@@ -275,21 +274,21 @@ public final class GameGrafics extends JPanel implements MouseListener{
                 leftClickProc(box);
             }
             else {
-                SortedSet<Integer> neighbors = findneighbors(index);
+                SortedSet<Box> neighbors = box.getNeighbors();
                 boolean flagsSeted = false;
                 int neighborFlags = 0;
-                for (Iterator<Integer> it = neighbors.iterator(); it.hasNext();) {
-                    Integer i = it.next();
-                    if(boxes.get(i).isFlaged())
+                for (Iterator<Box> it = neighbors.iterator(); it.hasNext();) {
+                    Box b = it.next();
+                    if(b.isFlaged())
                         neighborFlags++;
-                    else boxes.get(i).doClick();
+                    else b.doClick();
                 }
                            
-                if(box.getNeighbors().value == neighborFlags)
-                    neighbors.stream().filter((i) -> {
-                    return !boxes.get(i).isFlaged() && boxes.get(i).isEnabled();
-                }).forEachOrdered((i) -> {
-                        leftClickProc(boxes.get(i));
+                if(box.getNeighborsMined().value == neighborFlags)
+                    neighbors.stream().filter((b) -> {
+                    return !b.isFlaged() && b.isEnabled();
+                }).forEachOrdered((b) -> {
+                        leftClickProc(b);
                 });
                 
             }
