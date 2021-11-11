@@ -32,12 +32,12 @@ public class Counter extends JLabel{
 
     
     Timer timer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                count++;
-                setText(Integer.toString(count));
-            }
-        });;
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            count++;
+            setText(Integer.toString(count));
+        }
+    });
 
     private void setLabelOprions() {
         this.setPreferredSize(new Dimension(50, 30));
@@ -45,13 +45,10 @@ public class Counter extends JLabel{
         this.setOpaque(true);
         this.setBackground(Color.black);
         this.setForeground(Color.red);
-        this.setFont(new Font("Digital-7" ,Font.BOLD,28));
+        this.setFont(new Font("Dialog" ,Font.BOLD,28));
     }
     
     public int getCount() {
         return count;
     }
-    
-    
-    
 }

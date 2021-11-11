@@ -25,7 +25,7 @@ public class Box extends JButton implements Comparable<Box>{
     public Box(int index) {
         super();//init all the JButton attributes
         this.index = index;
-        //default values, befor mine genarating
+        //default values, before mine generating
         Mined = false;
         Flaged = false;
         neighbors = new TreeSet<>();
@@ -70,7 +70,12 @@ public class Box extends JButton implements Comparable<Box>{
     }
     
     @Override
-    public int compareTo(Box b) {        
+    public int compareTo(Box b) { 
+        if(this.Flaged && !b.Flaged)
+            return 1;
+        else if (!this.Flaged && b.Flaged)
+            return -1;
+        else
             return index-b.getIndex();
     }
         

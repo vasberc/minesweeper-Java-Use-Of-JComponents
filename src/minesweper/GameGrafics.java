@@ -54,6 +54,7 @@ public final class GameGrafics extends JPanel implements MouseListener{
     private final ImageIcon remainingMineIcon = new ImageIcon("img/remainingMines.png");
     private int mines = 10;
     private int flags = mines; 
+    private int opend = 0;
     
     public GameGrafics(GameEngine engine) {
         this.engine = engine;
@@ -67,9 +68,7 @@ public final class GameGrafics extends JPanel implements MouseListener{
     }
     
     
-    public void generateGameField() {
-        
-        
+    public void generateGameField() {     
         
         boxes.add(null);//we work with index form 1 to 81, every live is pack of 9
         
@@ -84,8 +83,6 @@ public final class GameGrafics extends JPanel implements MouseListener{
         }
         
     }
-    
-    
     
     //genarating mines
     public void generateMines(){
@@ -106,8 +103,6 @@ public final class GameGrafics extends JPanel implements MouseListener{
     //setting Neighbors attribute 
     public void setNeighbors(){
         //SortedSet<Integer> neiborsMined = new TreeSet<>();
-        
-        
         Iterator<Box> it = boxes.iterator();// to check all List elements
         Box box = it.next();//put out null element (index 0)
         while (it.hasNext()) {
@@ -183,7 +178,8 @@ public final class GameGrafics extends JPanel implements MouseListener{
     * it opens all not mined neighbors by retro call of itself
     */
     public void openBox(Box box){
-         box.setEnabled(false);//open it   
+         box.setEnabled(false);//open it  
+         opend++;
         //if box does not have mined neighbors
         if(box.getNeighborsMined().value == 0){                    
             box.setIcon(Neighbors.ZERO.icon);//set the icons
@@ -201,16 +197,7 @@ public final class GameGrafics extends JPanel implements MouseListener{
     }
     
     //Checks if player won
-    public void checkIfWins(){
-        int opend = 0;//to count opend boxes
-        Iterator<Box> it = boxes.iterator();// to check all List elements
-        Box box = it.next();//put out null element (index 0)
-        while (it.hasNext()) {
-            box = it.next();
-            if(!box.isEnabled())
-                opend++;//if bos is opend opend++
-            
-        }
+    public void checkIfWins(){        
         if(81-opend == 10){//total boxes = 81 mines = 10 opend has to be 71
                 System.out.println("Congratulations you won");
                 //Stops the timer when the game finish
@@ -275,25 +262,27 @@ public final class GameGrafics extends JPanel implements MouseListener{
             }
             else {
                 SortedSet<Box> neighbors = box.getNeighbors();
-                boolean flagsSeted = false;
-                int neighborFlags = 0;
-                for (Iterator<Box> it = neighbors.iterator(); it.hasNext();) {
-                    Box b = it.next();
-                    if(b.isFlaged())
-                        neighborFlags++;
-                    else b.doClick();
-                }
-                           
-                if(box.getNeighborsMined().value == neighborFlags)
-                    neighbors.stream().filter((b) -> {
-                    return !b.isFlaged() && b.isEnabled();
-                }).forEachOrdered((b) -> {
-                        leftClickProc(b);
-                });
                 
+                int neighborFlags = 0;
+                for (Box b : neighbors) {
+                    
+                    if(b.isFlaged()){                        
+                        neighborFlags++;
+                        if(box.getNeighborsMined().value == neighborFlags) {
+                            neighbors.stream().filter((b1) -> {
+                            return !b1.isFlaged() && b1.isEnabled();
+                            }).forEachOrdered((b1) -> {
+                                leftClickProc(b1);
+                            });
+                            break;
+                        }
+                    } else {
+                        b.doClick(10);
+                        
+                    }
+                }
             }
-        }      
-        
+        }  
     }
 
     @Override

@@ -6,6 +6,7 @@
 package minesweper;
 
 import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -23,23 +24,12 @@ public class Minesweeper {
         
               
         GameEngine system = new GameEngine("MineSweeper");
-        
-        system.setSize(250, 325);
-        system.setLocationRelativeTo(null);
-        system.setResizable(false);
-        system.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        system.setVisible(true);
-        
-        
-        
-        
-       
-        
-        
-        
-        
-        
-        
+        SwingUtilities.invokeLater(() -> {
+            system.setSize(250, 325);
+            system.setLocationRelativeTo(null);
+            system.setResizable(false);
+            system.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            system.setVisible(true);
+        }); 
     }
-    
 }

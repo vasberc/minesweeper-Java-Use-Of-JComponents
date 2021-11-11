@@ -7,6 +7,7 @@ package minesweper;
 
 import java.awt.FlowLayout;
 import javax.swing.JFrame;
+import javax.swing.SwingWorker;
 
 /**
  *
@@ -42,39 +43,26 @@ public class GameEngine extends JFrame {
         add(gameBar);
         add(gameGrafics);
         
-        //The counter starts when all grafics are ready
+        //The counter starts when all grafics are ready        
         gameBar.getCounter().timer.setInitialDelay(0);
         gameBar.getCounter().timer.start();
+                
     }
     
     //this method reset the game
     public void resetGame(){
-        this.remove(gameGrafics); //remove all grafics    
-        this.remove(stats); //remove all grafics   
-        this.remove(gameBar);
+        this.getContentPane().removeAll();//remove all grafics        
         this.repaint();
         this.setGameEngine(); //set them again, all objects are new
     }
     
-    public void showStats() {
-       
-       
+    public void showStats() {              
         this.gameBar.getCounter().timer.stop();
-        this.remove(gameGrafics); //remove all grafics  
-        
-        this.remove(stats); //remove all grafics   
-        this.remove(gameBar);
-        this.repaint();
-        this.repaint();
-        this.validate();
+        this.getContentPane().removeAll(); //remove all grafics 
+        this.repaint();      
         this.add(gameBar);        
         this.add(stats);        
         this.validate();
-        
-        
-        
-        
-        
     }
     
     //Help GameBar class communicate with GameGrafics class  

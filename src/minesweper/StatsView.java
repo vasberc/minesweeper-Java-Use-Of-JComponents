@@ -5,7 +5,6 @@
  */
 package minesweper;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.io.EOFException;
@@ -17,12 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 /**
  *
@@ -32,8 +28,8 @@ import javax.swing.JTextField;
  */
 public class StatsView extends JPanel{
     
-    private ArrayList<Player> players = new ArrayList<>();
-    private Path path;
+    private final ArrayList<Player> players = new ArrayList<>();
+    private final Path path;
     private File scores;
 
     public StatsView() {
@@ -90,9 +86,9 @@ public class StatsView extends JPanel{
        
         int record = count;
         if(players.size()<10)
-            players.add(new Player(JOptionPane.showInputDialog("Enter youe Name"), record));
+            players.add(new Player(JOptionPane.showInputDialog("Enter your Name"), record));
         else if(players.get(9).getScore() > record)
-                    players.add(new Player(JOptionPane.showInputDialog("Enter youe Name"), record));
+                    players.add(new Player(JOptionPane.showInputDialog("Enter your Name"), record));
         
         players.sort((Player p1, Player p2) -> {
             return p1.getScore()-p2.getScore();
